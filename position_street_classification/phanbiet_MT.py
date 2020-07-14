@@ -46,8 +46,8 @@ with open('data_fullcontent.json') as json_file:
     
     
     position_street_2 = ['hai mat tien', 'ba mat tien', ' 2 mat tien', '3 mat tien', ' 2mt', '3mt', ' 2 mt', '3 mt']
-    position_street_4 = [' 2 mt hem',  'mat tien hem', ' 2 mat hem', 'mot mat hem', 'mt hem', '1 mt hem']
-
+    position_street_4 = [' 2 mt hem',  'mat tien hem', ' 2 mat hem', 'mot mat hem', 'mt hem', '1 mt hem', '1mth', '2mth']
+    
 
     f_1 = []
     f_2 = []
