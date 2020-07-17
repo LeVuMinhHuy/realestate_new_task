@@ -6,6 +6,11 @@ Created on Tue Jul 14 14:17:41 2020
 @author: naivegiraffe
 """
 
+
+import json
+import datetime
+import re
+
 S1 = "ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚÝàáâãèéêìíòóôõùúýĂăĐđĨĩŨũƠơƯưẠạẢảẤấẦầẨẩẪẫẬậẮắẰằẲẳẴẵẶặẸẹẺẻẼẽẾếỀềỂểỄễỆệỈỉỊịỌọỎỏỐốỒồỔổỖỗỘộỚớỜờỞởỠỡỢợỤụỦủỨứỪừỬửỮữỰựỲỳỴỵỶỷỸỹ"
 S0 = "AAAAEEEIIOOOOUUYaaaaeeeiioooouuyAaDdIiUuOoUuAaAaAaAaAaAaAaAaAaAaAaAaEeEeEeEeEeEeEeEeIiIiOoOoOoOoOoOoOoOoOoOoOoOoUuUuUuUuUuUuUuYyYyYyYy"
 def remove_accents(input_str):
@@ -28,11 +33,33 @@ def remove_accents(input_str):
             s += c
     return s.lower()
 
-import json
 
-with open('data_fullcontent.json') as json_file:
-    data = json.load(json_file)
+def is_date_2(date_text):
+    try:
+        datetime.datetime.strptime(date_text, '%d/%m/%Y')
+        return True
+    except ValueError:
+        return False
     
+def is_date_11(date_text):
+    try:
+        datetime.datetime.strptime(date_text, '%m/%Y')
+        return True
+    except ValueError:
+        return False
+
+def is_date_12(date_text):
+    try:
+        datetime.datetime.strptime(date_text, '%d/%m')
+        return True
+    except ValueError:
+        return False
+
+with open('data_fullcontent.json', encoding="utf-8") as json_file:
+    data = json.load(json_file)
+
+
+                                
     ####
     # list các keyword cần check, ở dạng lower và không dấu vì check trên str đã remove_accents()
     ####
@@ -51,10 +78,12 @@ with open('data_fullcontent.json') as json_file:
 
     f_1 = []
     f_2 = []
+    f_3 = []
     f_4 = []
     
     count_1 = 0
     count_2 = 0
+    count_3 = 0
     count_4 = 0
     
     for p in data:
@@ -71,6 +100,57 @@ with open('data_fullcontent.json') as json_file:
         for i in position_street_4:
             if i in remove_accents(p['content']):
                 count_4 = count_4 + 1
+                
+        flag_s = False
+        
+        # 2 sec
+        flag_s2 = False
+        
+        s2 = re.findall(r'[+-]?\d+/[+-]?\d+/[+-]?\d+', p['content'])
+        if s2 != []:
+            for i in s2:
+                if is_date_2(i):
+                    continue
+                else:
+                    flag_s2 = True
+            
+            if(flag_s2 == True):
+                count_4 = count_4 + 1
+                flag_s = True
+                flag_s2 = False
+
+                
+        # 1 sec
+        flag_s1 = False
+        list_wk = ['24/7', '24/24', '1/500', '80/20']   
+        
+        s1 = re.findall(r'[+-]?\d+/[+-]?\d+', p['content'])
+        if s1 != []:
+            for i in s1:
+                if is_date_11(i) or is_date_12(i):
+                    continue
+                elif i in list_wk:
+                    continue
+                elif len(i.split('/')[1]) > 3:
+                    continue
+                else:
+                    print(i)
+                    flag_s1 = True
+            
+            if(flag_s1 == True):
+                count_3 = count_3 + 1
+                flag_s = True
+                flag_s1 = False
+      
+        
+        # 0 sec
+        if flag_s == False:
+            list_addr = []
+            for i in range(0, len(p['attributes'])):
+                if p['attributes'][i]['type'] == 'addr_street':
+                    list_addr.append(p['attributes'][i]['content'])
+            if (len(list_addr) > 0):
+                count_1 = count_1 + 1
                         
                 
         # Đơn giản là xét ngược xuống, vì:
@@ -95,21 +175,31 @@ with open('data_fullcontent.json') as json_file:
             p.update(entry)
             f_2.append(p['id'])
             
+        elif (count_3 > 0):
+            entry = {'position_street': 3}
+            p.update(entry)
+            f_3.append(p['id'])
+            
         elif (count_1 > 0):
             entry = {'position_street': 1}
             p.update(entry)
             f_1.append(p['id'])
+            
+        ####
+        
 
                 
         
         count_1 = 0
         count_2 = 0
+        count_3 = 0
         count_4 = 0
         
     
-    print(len(f_1))
-    print(len(f_2))
-    print(len(f_4))
+    print('position_street = 1', len(f_1), '\n')
+    print('position_street = 2', len(f_2), '\n')
+    print('position_street = 3', len(f_3), '\n')
+    print('position_street = 4', len(f_4), '\n')
             
 # Xuất ra lại một file mới có thêm thuộc tính 'position_street'
 with open('data_fullcontext_new.json', 'w', encoding='utf8') as json_file:
