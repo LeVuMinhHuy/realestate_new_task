@@ -73,18 +73,20 @@ with open('data_fullcontent.json', encoding="utf-8") as json_file:
     
     
     position_street_2 = ['hai mat tien', 'ba mat tien', ' 2 mat tien', '3 mat tien', ' 2mt', '3mt', ' 2 mt', '3 mt']
-    position_street_4 = [' 2 mt hem',  'mat tien hem', ' 2 mat hem', 'mot mat hem', 'mt hem', '1 mt hem', '1mth', '2mth']
+    position_street_5 = [' 2 mt hem',  'mat tien hem', ' 2 mat hem', 'mot mat hem', 'mt hem', '1 mt hem', '1mth', '2mth']
     
 
     f_1 = []
     f_2 = []
     f_3 = []
     f_4 = []
+    f_5 = []
     
     count_1 = 0
     count_2 = 0
     count_3 = 0
     count_4 = 0
+    count_5 = 0
     
     for p in data:
         # O(1)
@@ -97,9 +99,9 @@ with open('data_fullcontent.json', encoding="utf-8") as json_file:
             if i in remove_accents(p['content']):
                 count_2 = count_2 + 1
 
-        for i in position_street_4:
+        for i in position_street_5:
             if i in remove_accents(p['content']):
-                count_4 = count_4 + 1
+                count_5 = count_5 + 1
                 
         flag_s = False
         
@@ -134,7 +136,6 @@ with open('data_fullcontent.json', encoding="utf-8") as json_file:
                 elif len(i.split('/')[1]) > 3:
                     continue
                 else:
-                    print(i)
                     flag_s1 = True
             
             if(flag_s1 == True):
@@ -164,8 +165,12 @@ with open('data_fullcontent.json', encoding="utf-8") as json_file:
         
         
         # Chưa xét / tên đường, sẽ trình bày sau trong buổi meet
-        
-        if (count_4 > 0):
+        if (count_5 > 0):
+            entry = {'position_street': 5}
+            p.update(entry)
+            f_5.append(p['id'])
+            
+        elif (count_4 > 0):
             entry = {'position_street': 4}
             p.update(entry)
             f_4.append(p['id'])
@@ -194,12 +199,14 @@ with open('data_fullcontent.json', encoding="utf-8") as json_file:
         count_2 = 0
         count_3 = 0
         count_4 = 0
+        count_5 = 0
         
     
-    print('position_street = 1', len(f_1), '\n')
-    print('position_street = 2', len(f_2), '\n')
-    print('position_street = 3', len(f_3), '\n')
-    print('position_street = 4', len(f_4), '\n')
+    print('position_street = 1: ', len(f_1), '\n')
+    print('position_street = 2: ', len(f_2), '\n')
+    print('position_street = 3: ', len(f_3), '\n')
+    print('position_street = 4: ', len(f_4), '\n')
+    print('position_street = 5: ', len(f_5), '\n')
             
 # Xuất ra lại một file mới có thêm thuộc tính 'position_street'
 with open('data_fullcontext_new.json', 'w', encoding='utf8') as json_file:
